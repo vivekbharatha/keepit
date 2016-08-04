@@ -1,7 +1,6 @@
 var merge = require('webpack-merge')
 var prodEnv = require('./prod.env')
 var env = require('../.env.json');
-//console.log(env);
 var config = {
   NODE_ENV: '"development"'
 };
