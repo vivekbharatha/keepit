@@ -26,7 +26,6 @@ export default {
       gutter: 16,
       fitWidth: true
     })
-    console.log(masonry)
     let notes = firebase.database().ref('/notes')
     notes.on('child_added', (snapshot) => {
       let note = snapshot.val()
