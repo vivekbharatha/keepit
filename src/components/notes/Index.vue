@@ -1,13 +1,10 @@
 <template>
   <div class="notes" v-el:notes>
-    <note v-for="note in notes" :note="note">
-
-    </note>
-  </div>
+    <note v-for="note in notes" :note="note" v-on:click="selectNote(note)" ></note>
 </template>
 
 <script>
-import firebase from '../FB'
+import noteRepository from '../../data/NoteRepository'
 import Masonry from 'masonry-layout'
 import Note from './Note'
 export default {
@@ -19,22 +16,42 @@ export default {
       notes: []
     }
   },
+  methods: {
+    selectNote ({key, title, content}) {
+      this.$dispatch('note.selected', {key, title, content})
+    }
+  },
   ready () {
-    let masonry = new Masonry(this.$els.notes, {
+    this.masonry = new Masonry(this.$els.notes, {
       itemSelector: '.note',
       columnWidth: 240,
       gutter: 16,
       fitWidth: true
     })
-    let notes = firebase.database().ref('/notes')
-    notes.on('child_added', (snapshot) => {
-      let note = snapshot.val()
+
+    noteRepository.on('added', (note) => {
       this.notes.unshift(note)
-      this.$nextTick(() => {
-        masonry.reloadItems()
-        masonry.layout()
-      })
     })
+
+    noteRepository.on('changed', ({key, title, content}) => {
+      let oldNote = noteRepository.find(this.notes, key)
+      oldNote.title = title
+      oldNote.content = content
+    })
+
+    noteRepository.on('removed', ({key}) => {
+      let removedNote = noteRepository.find(this.notes, key)
+      this.notes.$remove(removedNote)
+    })
+  },
+  watch: {
+    'notes': {
+      handler () {
+        this.masonry.reloadItems()
+        this.masonry.layout()
+      },
+      deep: true
+    }
   }
 }
 </script>

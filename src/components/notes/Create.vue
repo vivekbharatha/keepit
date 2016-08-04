@@ -8,7 +8,7 @@
 </template>
 
 <script>
-  import firebase from '../FB'
+  import noteRepository from '../../data/NoteRepository'
   export default {
     data () {
       return {
@@ -19,7 +19,7 @@
     methods: {
       createNote () {
         if (this.title.trim() || this.content.trim()) {
-          firebase.database().ref('/notes').push({ title: this.title, content: this.content }, (err) => {
+          noteRepository.create({ title: this.title, content: this.content }, (err) => {
             if (err) throw err
             this.title = ''
             this.content = ''
